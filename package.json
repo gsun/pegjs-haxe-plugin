@@ -1,0 +1,34 @@
+{
+  "name": "pegjs-haxe-plugin",
+  "version": "0.0.1",
+  "description": "Haxe target for PEG.js parser generator",
+  "main": "src/hxpegjs.js",
+  "files": [
+      "src/hxpegjs.js",
+      "src/passes/generate-bytecode-hx.js",
+      "src/passes/generate-hx.js",
+  ],
+  "peerDependencies": {
+    "pegjs": "~0.10.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gsun/pegjs-haxe-plugin.git"
+  },
+  "keywords": [
+    "pegjs",
+    "plugin",
+    "haxe",
+    "parser",
+    "generator"
+  ],
+  "author": "Gang Sun",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gsun/pegjs-haxe-plugin/issues"
+  }
+}
