@@ -7,6 +7,8 @@
       "src/hxpegjs.js",
       "src/passes/generate-bytecode-hx.js",
       "src/passes/generate-hx.js",
+      "test/testpej.js",
+      "test/TestPeg.hx",
   ],
   "peerDependencies": {
     "pegjs": "~0.10.0"
