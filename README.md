@@ -1,5 +1,5 @@
 # pegjs-haxe-plugin
-the haxe target for pegjs
+the haxe target for pegjs, and this implementation refers to php-pegjs.
 
 1. npm install https://github.com/gsun/pegjs-haxe-plugin.git
 2. npm install pegjs
