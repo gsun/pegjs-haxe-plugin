@@ -1,7 +1,7 @@
 let fs = require("fs");
 
 var peg = require("pegjs");
-var hxpegjs = require('../src/hxpegjs.js');
+var hxpegjs = require("pegjs-haxe-plugin");
 
 var parser = peg.generate("start = ('a' / 'b')+", {plugins: [hxpegjs]});
 outputStream = fs.createWriteStream("Peg.hx");
