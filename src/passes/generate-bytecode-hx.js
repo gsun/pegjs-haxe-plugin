@@ -1,11 +1,11 @@
 "use strict";
 
-var arrays  = require("../../utils/arrays"),
-    objects = require("../../utils/objects"),
-    asts    = require("../asts"),
-    visitor = require("../visitor"),
-    op      = require("../opcodes"),
-    js      = require("../js");
+var arrays  = require("pegjs/lib/utils/arrays"),
+    objects = require("pegjs/lib/utils/objects"),
+    asts    = require("pegjs/lib/compiler/asts"),
+    visitor = require("pegjs/lib/compiler/visitor"),
+    op      = require("pegjs/lib/compiler/opcodes"),
+    js      = require("pegjs/lib/compiler/js");
 
 /* Generates bytecode.
  *
