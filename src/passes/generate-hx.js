@@ -6,7 +6,7 @@ var arrays  = require("pegjs/lib/utils/arrays"),
     op      = require("pegjs/lib/compiler/opcodes"),
     js      = require("pegjs/lib/compiler/js");
 
-/* Generates parser JavaScript code. */
+/* Generates parser Haxe code. */
 function generateHx(ast, options) {
   /* These only indent non-empty lines to avoid trailing whitespace. */
   function indent2(code)  { return code.replace(/^(.+)$/gm, '  $1');         }
@@ -17,7 +17,14 @@ function generateHx(ast, options) {
   function generateTables() {
       return arrays.map(
         ast.consts,
-        function(c, i) { return 'static var c' + i + ' = ' + c + ';'; }
+        function(c, i) { return 'var c' + i + ':Dynamic;'; }
+      ).join('\n');
+  }
+  
+  function generateTableValues() {
+      return arrays.map(
+        ast.consts,
+        function(c, i) { return 'c' + i + ' = ' + c + ';'; }
       ).join('\n');
   }
 
@@ -305,7 +312,7 @@ function generateHx(ast, options) {
 
           case op.MATCH_REGEXP:       // MATCH_REGEXP r, a, f, ...
             compileCondition(
-              c(bc[ip + 1]) + '.test(input.charAt(currPos))',
+              c(bc[ip + 1]) + '.match(input.charAt(currPos))',
               1
             );
             break;
@@ -524,7 +531,7 @@ function generateHx(ast, options) {
     }
 
     parts.push([
-      'class Peg {',
+      'class PegParser {',
       ''
     ].join('\n'));
     
@@ -569,6 +576,7 @@ function generateHx(ast, options) {
         '    startRuleFunction  = ' + startRuleFunction + ';'
       ].join('\n'));
     
+    parts.push(indent4(generateTableValues()));
 
     parts.push([
       '',

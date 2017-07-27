@@ -193,6 +193,58 @@ var arrays  = require("pegjs/lib/utils/arrays"),
 function generateBytecode(ast) {
   var consts = [];
 
+  function hex(ch) { return ch.charCodeAt(0).toString(16).toUpperCase(); }
+  
+  function stringEscape(s) {
+    /*
+     * ECMA-262, 5th ed., 7.8.4: All characters may appear literally in a string
+     * literal except for the closing quote character, backslash, carriage
+     * return, line separator, paragraph separator, and line feed. Any character
+     * may appear in the form of an escape sequence.
+     *
+     * For portability, we also escape all control and non-ASCII characters.
+     * Note that the "\v" escape sequence is not used because IE does not like
+     * it.
+     */
+    return s
+      .replace(/\\/g,   '\\\\')   // backslash
+      .replace(/"/g,    '\\"')    // closing double quote
+      //.replace(/\0/g,   '\\0')    // null
+      .replace(/\x08/g, '\\b')    // backspace
+      .replace(/\t/g,   '\\t')    // horizontal tab
+      .replace(/\n/g,   '\\n')    // line feed
+      .replace(/\f/g,   '\\f')    // form feed
+      .replace(/\r/g,   '\\r')    // carriage return
+      .replace(/[\x00-\x0F]/g,          function(ch) { return '\\x0' + hex(ch); })
+      .replace(/[\x10-\x1F\x7F-\xFF]/g, function(ch) { return '\\x'  + hex(ch); })
+      .replace(/[\u0100-\u0FFF]/g,      function(ch) { return '\\u0' + hex(ch); })
+      .replace(/[\u1000-\uFFFF]/g,      function(ch) { return '\\u'  + hex(ch); });
+  }
+
+  function regexpClassEscape(s) {
+    /*
+     * Based on ECMA-262, 5th ed., 7.8.5 & 15.10.1.
+     *
+     * For portability, we also escape all control and non-ASCII characters.
+     */
+    return s
+      .replace(/\\/g, '\\\\')    // backslash
+      .replace(/\//g, '\\/')     // closing slash
+      .replace(/\]/g, '\\]')     // closing bracket
+      .replace(/\^/g, '\\^')     // caret
+      .replace(/-/g,  '\\-')     // dash
+      //.replace(/\0/g, '\\0')     // null
+      .replace(/\t/g, '\\t')     // horizontal tab
+      .replace(/\n/g, '\\n')     // line feed
+      .replace(/\v/g, '\\x0B')   // vertical tab
+      .replace(/\f/g, '\\f')     // form feed
+      .replace(/\r/g, '\\r')     // carriage return
+      .replace(/[\x00-\x0F]/g,          function(ch) { return '\\x0' + hex(ch); })
+      .replace(/[\x10-\x1F\x7F-\xFF]/g, function(ch) { return '\\x'  + hex(ch); })
+      .replace(/[\u0100-\u0FFF]/g,      function(ch) { return '\\u0' + hex(ch); })
+      .replace(/[\u1000-\uFFFF]/g,      function(ch) { return '\\u'  + hex(ch); });
+  }
+  
   function addConst(value) {
     var index = arrays.indexOf(consts, value);
 
@@ -297,7 +349,7 @@ function generateBytecode(ast) {
 
     named: function(node, context) {
       var nameIndex = addConst(
-        'otherExpectation("' + js.stringEscape(node.name) + '")'
+        'otherExpectation("' + stringEscape(node.name) + '")'
       );
 
       /*
@@ -535,14 +587,14 @@ function generateBytecode(ast) {
 
       if (node.value.length > 0) {
         stringIndex = addConst('"'
-          + js.stringEscape(
+          + stringEscape(
               node.ignoreCase ? node.value.toLowerCase() : node.value
             )
           + '"'
         );
         expectedIndex = addConst(
           'literalExpectation('
-            + '"' + js.stringEscape(node.value) + '", '
+            + '"' + stringEscape(node.value) + '", '
             + node.ignoreCase
             + ')'
         );
@@ -572,14 +624,14 @@ function generateBytecode(ast) {
       var regexp, parts, regexpIndex, expectedIndex;
 
       if (node.parts.length > 0) {
-        regexp = '/^['
+        regexp = '~/^['
           + (node.inverted ? '^' : '')
           + arrays.map(node.parts, function(part) {
               return part instanceof Array
-                ? js.regexpClassEscape(part[0])
+                ? regexpClassEscape(part[0])
                   + '-'
-                  + js.regexpClassEscape(part[1])
-                : js.regexpClassEscape(part);
+                  + regexpClassEscape(part[1])
+                : regexpClassEscape(part);
             }).join('')
           + ']/' + (node.ignoreCase ? 'i' : '');
       } else {
@@ -587,14 +639,14 @@ function generateBytecode(ast) {
          * IE considers regexps /[]/ and /[^]/ as syntactically invalid, so we
          * translate them into equivalents it can handle.
          */
-        regexp = node.inverted ? '/^[\\S\\s]/' : '/^(?!)/';
+        regexp = node.inverted ? '~/^[\\S\\s]/' : '~/^(?!)/';
       }
 
       parts = '['
         + arrays.map(node.parts, function(part) {
             return part instanceof Array
-              ? '["' + js.stringEscape(part[0]) + '", "' + js.stringEscape(part[1]) + '"]'
-              : '"' + js.stringEscape(part) + '"';
+              ? '"' + stringEscape(part[0]) + '-' + stringEscape(part[1]) + '"'
+              : '"' + stringEscape(part) + '"';
           }).join(', ')
         + ']';
 
