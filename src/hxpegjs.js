@@ -5,4 +5,6 @@ exports.use = function(config, options){
       require("./passes/generate-hx")
     ];
     options.output = "source";
+    if (!options.hxpegjs) options.hxpegjs = {};
+    if (options.hxpegjs.parserClassName === undefined) options.hxpegjs.parserClassName = 'PegParser';
 };

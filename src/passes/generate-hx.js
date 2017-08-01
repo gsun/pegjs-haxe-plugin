@@ -530,8 +530,9 @@ function generateHx(ast, options) {
       ].join('\n'));
     }
 
+    var parser_class = options.hxpegjs.parserClassName;
     parts.push([
-      'class PegParser {',
+      'class ' + parser_class + ' {',
       ''
     ].join('\n'));
     
@@ -591,7 +592,7 @@ function generateHx(ast, options) {
 
     if (options.trace) {
       parts.push([
-        '      tracer = "tracer" in options ? options.tracer : new DefaultTracer();',
+        '  if (options.trace)   tracer = new DefaultTracer();',
         ''
       ].join('\n'));
     }
